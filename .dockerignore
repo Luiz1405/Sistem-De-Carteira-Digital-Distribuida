@@ -1,0 +1,8 @@
+**/target/
+.git
+.mvn/wrapper/maven-wrapper.jar
+_bmad/
+_bmad-output/
+.claude/
+.vscode/
+*.md
