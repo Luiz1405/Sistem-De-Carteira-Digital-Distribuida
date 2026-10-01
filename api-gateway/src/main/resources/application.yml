@@ -4,12 +4,40 @@ server:
 spring:
   application:
     name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: account-service
+              uri: http://account-service:8081
+              predicates:
+                - Path=/accounts/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: accountServiceCircuitCB
+                    fallbackUri: forward:/fallback/account-service
 
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 10
+        minimum-number-of-calls: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 3s
 management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health,circuitbreakers
   endpoint:
     health:
       show-details: always
